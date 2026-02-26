@@ -1,9 +1,13 @@
+anyio==4.12.1
 beautifulsoup4==4.14.3
-certifi==2026.1.4
+certifi==2026.2.25
 cffi==2.0.0
 charset-normalizer==3.4.4
 curl_cffi==0.13.0
 frozendict==2.4.7
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
 idna==3.11
 multitasking==0.0.12
 numpy==2.4.2
@@ -14,6 +18,7 @@ protobuf==6.33.5
 pycparser==3.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
+python-telegram-bot==22.6
 pytz==2025.2
 requests==2.32.5
 six==1.17.0

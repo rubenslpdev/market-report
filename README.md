@@ -1,95 +1,139 @@
-#  Market Report - Relatório de Ativos
+# 📈 Telegram Market Report Bot (Hybrid Mode)
 
-Um script em Python simples e eficiente que extrai dados financeiros (Ações da B3 e Criptomoedas), analisa tendências baseadas em Média Móvel Simples (SMA 20) e envia um relatório automatizado diretamente para o seu Telegram.
+Este projeto consiste em um bot interativo para Telegram que monitora ativos financeiros (Ações e Criptomoedas). Ele foi reestruturado para um **modelo híbrido de execução**, otimizando o consumo de memória RAM em servidores limitados (ex: instâncias de 1GB).
 
-##  Funcionalidades
+## Arquitetura do Projeto
 
-- **Cotação em Tempo Real (fechamento):** Busca o último preço disponível dos ativos configurados.
-- **Análise de Tendência (SMA 20):** Calcula a Média Móvel Simples de 20 períodos para definir se o ativo está em tendência de Alta 📈 ou Baixa 📉.
-- **Mínimas e Máximas:** Retorna o menor e o maior preço negociado nos últimos 7 pregões/dias.
-- **Suporte Multi-Ativos:** Funciona nativamente com ações da Bolsa Brasileira (B3), índices (ex: IBOV) e Criptomoedas globais.
-- **Configuração via JSON:** Facilidade para adicionar ou remover ativos sem mexer no código Python.
-- **Integração com Telegram:** Envio direto via API do Telegram (`requests`), formatado em HTML para melhor legibilidade no celular.
+O projeto é dividido em dois componentes principais para economizar recursos:
 
-##  Tecnologias Utilizadas
+1. **Listener (Bot de Escuta):** Um script leve que roda 24/7, consumindo o mínimo de RAM (~20MB), apenas aguardando comandos no Telegram.
+    
+2. **Worker (Processador):** Um script robusto que carrega as bibliotecas financeiras (`yfinance`, `pandas`), processa os dados e envia o relatório. Ele é executado apenas sob demanda e encerra logo após o envio, liberando memória para o sistema.
+    
 
-- [Python 3.x](https://www.python.org/)
-- [yfinance](https://pypi.org/project/yfinance/) - Obtenção dos dados financeiros do Yahoo Finance.
-- [pandas](https://pandas.pydata.org/) - Manipulação de dados e cálculo da média móvel.
-- [requests](https://pypi.org/project/requests/) - Comunicação com a API do Telegram.
-- [python-dotenv](https://pypi.org/project/python-dotenv/) - Gerenciamento seguro de credenciais via arquivo `.env`.
+## Funcionalidades
 
-##  Pré-requisitos e Instalação
+- **Baixo Consumo:** Ideal para rodar junto com servidores Web (Apache/Nginx) e outros scripts.
+    
+- **Relatório sob Demanda:** Digite `/relatorio` no bot e receba os dados atualizados em segundos.
+    
+- **Agendamento via Cron:** O Worker pode ser chamado pelo Cron do sistema para relatórios automáticos.
+    
+- **Análise de Tendência:** Compara o preço atual com a Média Móvel (SMA 20) e identifica máximas/mínimas de 7 dias.
+    
 
-1. **Clone o repositório:**
-   ```bash
-   git clone https://github.com/rubenslpdev/market-report.git
-   cd market-report 
-   ```
+## Instalação e Configuração
 
-2. **Instale as dependências:**
-   ```bash
-   pip install yfinance requests python-dotenv pandas
-   ```
+### 1. Requisitos
 
-3. **Configuração do Bot do Telegram:**
-   - Procure o `@BotFather` no Telegram e crie um novo bot para obter o **Token**.
-   - Inicie uma conversa com seu novo bot.
-   - Para descobrir o seu Chat ID, você pode enviar uma mensagem para o bot e acessar a URL: `https://api.telegram.org/bot<SEU_TOKEN>/getUpdates`.
+- Python 3.10+
+    
+- Token de Bot do Telegram (obtido via @BotFather)
 
-4. **Configuração das Variáveis de Ambiente:**
-   - Crie um arquivo chamado `.env` na raiz do projeto e insira suas credenciais:
-   ```env
-   TELEGRAM_TOKEN=seu_token_aqui
-   TELEGRAM_CHAT_ID=seu_chat_id_aqui
-   ```
+## Como Instalar
 
-5. **Configuração dos Ativos:**
-   - Edite o arquivo `config.json` com os ativos desejados. Lembre-se de usar o sufixo `.SA` para ações brasileiras:
-   ```json
-   {
-     "ativos": {
-       "stocks": [
-         { "ticker": "PETR4.SA" },
-         { "ticker": "^BVSP" }
-       ],
-       "criptos": [
-         { "ticker": "BTC-USD" }
-       ]
-     }
-   }
-   ```
-
-##  Como Usar
-
-Com as configurações prontas, basta executar o script principal:
-
+### 1. Clonar o repositório
 ```bash
-python bot_relatorio.py
+git clone [https://github.com/rubenslpdev/market-report.git](https://github.com/rubenslpdev/market-report.git)
+cd market-report
+
+
+### 2. Configurar o ambiente virtual e dependências
+
+
+python3 -m venv venv
+source venv/bin/activate
+pip install python-telegram-bot yfinance python-dotenv requests
 ```
 
-Você receberá imediatamente uma mensagem no seu Telegram semelhante a esta:
+### 3. Configurar variáveis de ambiente
 
-> 📊 **Relatório Diário de Ativos**
->
-> 🏢 **Ações (B3) e Índice**
-> 🔸 **PETR4**: R$ 42.50 | Alta 📈
->    └ *Min 7d: R$ 40.10 / Max 7d: R$ 43.00*
-> 🔸 **^BVSP**: R$ 130000.00 | Alta 📈
->    └ *Min 7d: R$ 128500.00 / Max 7d: R$ 131200.00*
->
-> 🪙 **Criptomoedas**
-> 🔸 **BTC-USD**: $ 65,000.00 | Baixa 📉
->    └ *Min 7d: $ 63,500.00 / Max 7d: $ 67,200.00*
+Crie um arquivo `.env` na raiz do projeto:
 
-##  Dica: Automação (Cron Job)
-Para que o bot rode sozinho todos os dias (ex: após o fechamento do mercado), você pode configurar um *cron job* (Linux/Mac) ou o *Agendador de Tarefas* (Windows).
+Code snippet
 
-Exemplo de Cron Job para rodar de segunda a sexta às 18:30:
-```bash
-30 18 * * 1-5 /caminho/para/o/seu/python /caminho/para/o/bot_relatorio.py
+```
+TELEGRAM_TOKEN=seu_token_aqui
+TELEGRAM_CHAT_ID=seu_chat_id_aqui
 ```
 
-##  Licença
-Este projeto é de código aberto e está disponível sob a licença MIT. Sinta-se à vontade para clonar, modificar e utilizar!
+### 4. Configurar Ativos
+
+Edite o arquivo `config.json` para adicionar seus ativos:
+
+```json
+{
+  "ativos": {
+    "stocks": [
+      { "ticker": "PETR4.SA" },
+      { "ticker": "VALE3.SA" }
+    ],
+    "criptos": [
+      { "ticker": "BTC-USD" },
+      { "ticker": "ETH-USD" }
+    ]
+  }
+}
+```
+
+## 🤖 Execução e Persistência (Linux)
+
+Para garantir que o bot rode 24/7 e inicie automaticamente com o servidor, utilize o **Systemd**.
+
+1. Crie o arquivo de serviço:
+    
+    ```bash
+    sudo nano /etc/systemd/system/marketreport.service
+    ```
+    
+2. Adicione o conteúdo abaixo (ajustando os caminhos):
+
+```TOML
+    [Unit]
+    Description=Bot de Relatorio Financeiro
+    After=network.target
+    
+    [Service]
+    Type=simple
+    User=ubuntu
+    WorkingDirectory=/home/ubuntu/Projetos/python/marketreport
+	ExecStart=/home/ubuntu/Projetos/python/marketreport/.venv/bin/python3 /home/ubuntu/Projetos/python/marketreport/market_listener.py
+    Restart=always
+    
+    [Install]
+    WantedBy=multi-user.target
+```
+
+3. Ative o serviço:
+    
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl enable marketreport
+    sudo systemctl start marketreport
+    ```
+    
+
+### No Cron (Relatório Automático)
+
+Para manter o relatório semanal toda segunda às 08:00 sem precisar do bot acordado para isso, adicione no seu `crontab -e`:
+
+```bash
+0 8 * * 1 /home/ubuntu/Projetos/python/marketreport/.venv/bin/python3 /home/ubuntu/Projetos/python/marketreport/market_reporter.py
+```
+
+---
+
+## 📊 Comandos Disponíveis
+
+- `/start`: Mensagem de boas-vindas.
+    
+- `/relatorio`: Gera e envia o relatório financeiro atualizado.
+    
+
+---
+## 📝 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](https://www.google.com/search?q=LICENSE&authuser=1) para detalhes.
+
+---
 
