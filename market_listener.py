@@ -14,7 +14,7 @@ async def relatorio_manual(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Chama o script worker. A memória sobe apenas durante esta execução.
     try:
         # Usamos o caminho absoluto ou relativo para garantir que funcione no systemd
-        script_path = os.path.join(os.path.dirname(__file__), "report_worker.py")
+        script_path = os.path.join(os.path.dirname(__file__), "market_reporter.py")
         subprocess.Popen(["python3", script_path])
         
     except Exception as e:
