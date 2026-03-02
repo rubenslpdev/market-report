@@ -4,11 +4,15 @@ import requests
 import yfinance as yf
 from dotenv import load_dotenv
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-def ler_configuracoes(filepath="config.json"):
+def ler_configuracoes(filepath=None):
+    if filepath is None:
+        filepath = os.path.join(BASE_DIR, "config.json")
     with open(filepath, "r", encoding="utf-8") as file:
         return json.load(file)
 

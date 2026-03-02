@@ -1,10 +1,12 @@
 import os
 import subprocess
+import sys
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
-load_dotenv()
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 async def relatorio_manual(update: Update, context: ContextTypes.DEFAULT_TYPE):
