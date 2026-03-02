@@ -48,8 +48,9 @@ def gerar_relatorio():
     for categoria in ["stocks", "criptos", "moedas", "futuros"]:
         if categoria in config["ativos"] and config["ativos"][categoria]:
 
-            linhas.append("\n" + "━━━━━━━━━━━━━━━")
-            linhas.append(nomes_categorias[categoria])
+            linhas.append("\n" + nomes_categorias[categoria])
+            linhas.append("━━━━━━━━━━━━━━━")
+            linhas.append("")
             
             for item in config["ativos"][categoria]:
                 d = buscar_dados_ativo(item["ticker"])
