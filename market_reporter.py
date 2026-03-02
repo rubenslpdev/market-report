@@ -35,14 +35,33 @@ def buscar_dados_ativo(ticker_symbol):
 
 def gerar_relatorio():
     config = ler_configuracoes()
-    linhas = ["📊 <b>Relatório de Ativos</b>\n"]
+    
+    nomes_categorias = {
+        "stocks": "💹 <b>AÇÕES</b>",
+        "criptos": "🪙 <b>CRIPTOS</b>",
+        "moedas": "💵 <b>CÂMBIO</b>",
+        "futuros": "📈 <b>FUTUROS</b>"
+    }
+
+    linhas = ["📊 <b>Relatório Diário de Mercado</b>"]
+    
     for categoria in ["stocks", "criptos", "moedas", "futuros"]:
-        for item in config["ativos"][categoria]:
-            d = buscar_dados_ativo(item["ticker"])
-            if d:
-                simbolo = d['ticker'].replace('.SA', '')
-                linhas.append(f"{d['tendencia']} <b>{simbolo}</b>: R$ {d['preco']:,.2f}")
-    return "\n\n".join(linhas)
+        if categoria in config["ativos"] and config["ativos"][categoria]:
+
+            linhas.append("\n" + "━━━━━━━━━━━━━━━")
+            linhas.append(nomes_categorias[categoria])
+            
+            for item in config["ativos"][categoria]:
+                d = buscar_dados_ativo(item["ticker"])
+                if d:
+
+                    simbolo = d['ticker'].replace('.SA', '').replace('=X', '')
+                    if simbolo == "^BVSP": simbolo = "IBOV"
+                    elif simbolo == "BZ=F": simbolo = "BRENT"
+                    
+                    linhas.append(f"{d['tendencia']} <b>{simbolo}</b>: R$ {d['preco']:,.2f}")
+                    
+    return "\n".join(linhas)
 
 def enviar_telegram(mensagem, chat_id=None):
     alvo_chat_id = chat_id or TELEGRAM_CHAT_ID
