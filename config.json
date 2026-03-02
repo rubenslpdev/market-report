@@ -1,17 +1,45 @@
 {
   "ativos": {
     "stocks": [
-      { "ticker": "BBDC3.SA" },
-      { "ticker": "EZTC3.SA" },
-      { "ticker": "KLBN4.SA" },
-      { "ticker": "VALE3.SA" },
-      { "ticker": "PETR4.SA" },
-      { "ticker": "ITUB4.SA" },
-      { "ticker": "^BVSP" }
+      {
+        "ticker": "BBDC3.SA"
+      },
+      {
+        "ticker": "EZTC3.SA"
+      },
+      {
+        "ticker": "KLBN4.SA"
+      },
+      {
+        "ticker": "VALE3.SA"
+      },
+      {
+        "ticker": "PETR4.SA"
+      },
+      {
+        "ticker": "ITUB4.SA"
+      },
+      {
+        "ticker": "^BVSP"
+      }
+    ],
+    "moedas": [
+      {
+        "ticker": "USDBRL=X"
+      }
+    ],
+    "futuros": [
+      {
+        "ticker": "BZ=F"
+      }
     ],
     "criptos": [
-      { "ticker": "BTC-USD" },
-      { "ticker": "ETH-USD" }
+      {
+        "ticker": "BTC-USD"
+      },
+      {
+        "ticker": "ETH-USD"
+      }
     ]
   }
 }

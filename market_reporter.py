@@ -36,12 +36,12 @@ def buscar_dados_ativo(ticker_symbol):
 def gerar_relatorio():
     config = ler_configuracoes()
     linhas = ["📊 <b>Relatório de Ativos</b>\n"]
-    for categoria in ["stocks", "criptos"]:
+    for categoria in ["stocks", "criptos", "moedas", "futuros"]:
         for item in config["ativos"][categoria]:
             d = buscar_dados_ativo(item["ticker"])
             if d:
                 simbolo = d['ticker'].replace('.SA', '')
-                linhas.append(f"<b>{simbolo}</b>: {d['tendencia']} R$ {d['preco']:,.2f}")
+                linhas.append(f"{d['tendencia']} <b>{simbolo}</b>: R$ {d['preco']:,.2f}")
     return "\n\n".join(linhas)
 
 def enviar_telegram(mensagem, chat_id=None):
