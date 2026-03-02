@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import requests
 import yfinance as yf
@@ -43,13 +44,17 @@ def gerar_relatorio():
                 linhas.append(f"<b>{simbolo}</b>: {d['tendencia']} R$ {d['preco']:,.2f}")
     return "\n\n".join(linhas)
 
-def enviar_telegram(mensagem):
+def enviar_telegram(mensagem, chat_id=None):
+    alvo_chat_id = chat_id or TELEGRAM_CHAT_ID
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    payload = {"chat_id": TELEGRAM_CHAT_ID, "text": mensagem, "parse_mode": "HTML"}
+    payload = {"chat_id": alvo_chat_id, "text": mensagem, "parse_mode": "HTML"}
     requests.post(url, json=payload)
 
 if __name__ == "__main__":
+    # O chat_id pode vir via argumento (pelo listener) ou do .env (pelo cron)
+    custom_chat_id = sys.argv[1] if len(sys.argv) > 1 else None
+    
     # Quando executado, ele gera o relatório e envia
     relatorio = gerar_relatorio()
-    enviar_telegram(relatorio)
+    enviar_telegram(relatorio, custom_chat_id)
 
