@@ -104,25 +104,23 @@ def analisar_ativo(ticker, categoria):
         acima_sma200 = sma_200 is not None and ultimo_preco > sma_200
         adx_forte = adx is not None and adx > 25
         if acima_sma200 and adx_forte:
-            status_tendencia = "📈 Forte"
+            status_tendencia = "Forte"
         elif acima_sma200:
-            status_tendencia = "↗️ Moderada"
+            status_tendencia = "Moderada"
         elif adx_forte:
-            status_tendencia = "⚡ Volátil"
+            status_tendencia = "Volátil"
         else:
-            status_tendencia = "📉 Fraca"
+            status_tendencia = "Fraca"
 
         # --- Decisão de DCA ---
         if "Barato" in status_preco and "Forte" in status_tendencia:
-            decisao = "💰 AUMENTAR APORTE (2x) — Oportunidade de Ouro"
+            decisao = "💰 AUMENTAR APORTE (2x)"
         elif "Neutro" in status_preco and "Forte" in status_tendencia:
-            decisao = "✅ MANTER APORTE — Continuidade"
+            decisao = "✅ MANTER APORTE"
         elif "Caro" in status_preco:
-            decisao = "⚠️ REDUZIR APORTE (0.5x) — Ativo Caro"
-        elif "Fraca" in status_tendencia or "Volátil" in status_tendencia:
-            decisao = "🛑 SUSPENDER / ACUMULAR CAIXA — Tendência Fraca"
+            decisao = "⚠️ REDUZIR APORTE (0.5x)"
         else:
-            decisao = "✅ MANTER APORTE — Continuidade"
+            decisao = "✅ MANTER APORTE"
 
         simbolo = ticker.replace(".SA", "").replace("-USD", "").replace("=X", "")
         rsi_str = f"{rsi:.1f}" if rsi is not None else "N/D"
@@ -144,14 +142,14 @@ def analisar_ativo(ticker, categoria):
 
 def gerar_alerta_dca():
     config = ler_configuracoes()
-    linhas = ["📊 <b>Alerta DCA Inteligente</b>", ""]
+    linhas = ["💵 <b>Alerta DCA Inteligente</b>", ""]
 
     for categoria in ["stocks", "criptos"]:
         ativos = config["ativos"].get(categoria, [])
         if not ativos:
             continue
 
-        label = "📈 Stocks" if categoria == "stocks" else "₿ Criptos"
+        label = "📈 Stocks" if categoria == "stocks" else "🪙 Criptos"
         linhas.append(f"<b>{label}</b>")
 
         for item in ativos:
@@ -162,7 +160,7 @@ def gerar_alerta_dca():
                 f"\n<b>{dados['simbolo']}</b>\n"
                 f"  Preço: {dados['status_preco']}  |  Tend.: {dados['status_tendencia']}\n"
                 f"  RSI: {dados['rsi']}  |  Z-Score: {dados['zscore']}  |  ADX: {dados['adx']}\n"
-                f"  ➡️ {dados['decisao']}"
+                f"  {dados['decisao']}"
             )
 
         linhas.append("")
