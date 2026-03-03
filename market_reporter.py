@@ -20,8 +20,11 @@ def ler_configuracoes(filepath=None):
 def buscar_dados_ativo(ticker_symbol):
     try:
         ativo = yf.Ticker(ticker_symbol)
-        hist = ativo.history(period="5d")
-        if hist.empty or len(hist) < 2: return None
+        hist = ativo.history(period="7d")
+        # Limpa linhas que venham com valores nulos (comum no início do pregão)
+        hist = hist.dropna(subset=['Close'])
+        if len(hist) < 2: return None
+        
         preco = hist['Close'].iloc[-1]
         variacao = ((preco / hist['Close'].iloc[-2]) - 1) * 100
         return {"ticker": ticker_symbol, "preco": preco, "variacao": variacao}
