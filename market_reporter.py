@@ -20,49 +20,35 @@ def ler_configuracoes(filepath=None):
 def buscar_dados_ativo(ticker_symbol):
     try:
         ativo = yf.Ticker(ticker_symbol)
-        hist = ativo.history(period="2mo")
-        if hist.empty: return None
-        preco_atual = hist['Close'].iloc[-1]
-        sma_20 = hist['Close'].rolling(window=20).mean().iloc[-1]
-        tendencia = "🟢" if preco_atual > sma_20 else "🔴" if preco_atual < sma_20 else "➖"
-        return {
-            "ticker": ticker_symbol, "preco": preco_atual,
-            "min_7d": hist.tail(7)['Low'].min(), 
-            "max_7d": hist.tail(7)['High'].max(), 
-            "tendencia": tendencia
-        }
+        hist = ativo.history(period="5d")
+        if hist.empty or len(hist) < 2: return None
+        preco = hist['Close'].iloc[-1]
+        variacao = ((preco / hist['Close'].iloc[-2]) - 1) * 100
+        return {"ticker": ticker_symbol, "preco": preco, "variacao": variacao}
     except Exception: return None
+
+def formatar_preco(preco):
+    fmt = f"{preco:,.0f}" if preco >= 1000 else f"{preco:,.2f}"
+    return fmt.replace(",", "X").replace(".", ",").replace("X", ".")
 
 def gerar_relatorio():
     config = ler_configuracoes()
-    
-    nomes_categorias = {
-        "stocks": "💹 <b>AÇÕES</b>",
-        "criptos": "🪙 <b>CRIPTOS</b>",
-        "moedas": "💵 <b>CÂMBIO</b>",
-        "futuros": "📈 <b>FUTUROS</b>"
-    }
-
-    linhas = ["📊 <b>Relatório Diário de Mercado</b>"]
+    linhas = ["📊 <b>Resumo do mercado:</b>", ""]
     
     for categoria in ["stocks", "criptos", "moedas", "futuros"]:
-        if categoria in config["ativos"] and config["ativos"][categoria]:
-
-            linhas.append("\n" + nomes_categorias[categoria])
-            linhas.append("━━━━━━━━━━━━━━━")
+        bloco = []
+        for item in config["ativos"].get(categoria, []):
+            d = buscar_dados_ativo(item["ticker"])
+            if not d: continue
+            simbolo = d['ticker'].replace('.SA', '').replace('=X', '')
+            if simbolo == "^BVSP": simbolo = "IBOV"
+            elif simbolo == "BZ=F": simbolo = "BRENT"
+            bloco.append(f"{simbolo}: {formatar_preco(d['preco'])} {d['variacao']:+.1f}%")
+        if bloco:
+            linhas.extend(bloco)
             linhas.append("")
-            
-            for item in config["ativos"][categoria]:
-                d = buscar_dados_ativo(item["ticker"])
-                if d:
 
-                    simbolo = d['ticker'].replace('.SA', '').replace('=X', '')
-                    if simbolo == "^BVSP": simbolo = "IBOV"
-                    elif simbolo == "BZ=F": simbolo = "BRENT"
-                    
-                    linhas.append(f"{d['tendencia']} <b>{simbolo}</b>: R$ {d['preco']:,.2f}")
-                    
-    return "\n".join(linhas)
+    return "\n".join(linhas).rstrip()
 
 def enviar_telegram(mensagem, chat_id=None):
     alvo_chat_id = chat_id or TELEGRAM_CHAT_ID
