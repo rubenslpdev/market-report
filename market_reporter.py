@@ -38,7 +38,7 @@ def gerar_relatorio():
     config = ler_configuracoes()
     linhas = ["📊 <b>Resumo do mercado:</b>", ""]
     
-    for categoria in ["stocks", "criptos", "moedas", "futuros"]:
+    for categoria in ["stocks", "criptos", "indices", "moedas", "futuros"]:
         bloco = []
         for item in config["ativos"].get(categoria, []):
             d = buscar_dados_ativo(item["ticker"])
